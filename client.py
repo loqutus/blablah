@@ -25,6 +25,11 @@ def run_task(url_run):
     requests.get(url_run, timeout = TIMEOUT)
     print 'task runned!'
     
+def stop(url_stop):
+    print 'stopping: ' + url_stop
+    requests.get(url_stop, timeout = TIMEOUT)
+    print 'stopped!'
+
 if __name__ == '__main__':
     ACTION = sys.argv[1]
     if ACTION == 'upload_file':
@@ -40,3 +45,11 @@ if __name__ == '__main__':
         FILENAME = sys.argv[3]
         URL_RUN = URL + '/run_task/' + TASKNAME + '=' + FILENAME
         run_task(URL_RUN)
+    elif ACTION == 'stop_controller':
+        CONTROLLER = sys.argv[2]
+        URL_STOP = 'http://' + CONTROLLER + '/stop/'
+        stop(URL_STOP)
+    elif ACTION == 'stop_slave':
+        SLAVE = sys.argv[2]
+        URL_STOP = 'http://' + SLAVE + '/stop/'
+        stop(URL_STOP)
