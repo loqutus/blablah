@@ -50,9 +50,15 @@ class stop(tornado.web.RequestHandler):
 if __name__ == '__main__':
     if len(sys.argv) > 1:
         PORT = sys.argv[1]
+        FILE_DIR = FILE_DIR + '.' + PORT
+        TASK_DIR = TASK_DIR + '.' + PORT
+        RESULT_DIR = RESULT_DIR + '.' + PORT
     elif len(sys.argv) > 2:
         IP = sys.argv[1]
         PORT = sys.argv[2]
+        FILE_DIR = FILE_DIR + '.' + PORT
+        TASK_DIR = TASK_DIR + '.' + PORT
+        RESULT_DIR = RESULT_DIR + '.' + PORT
     else:
         pass
     logging.basicConfig(filename = LOG_DIR + '/' + 'slave' + str(PORT) + '.log', format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG)
