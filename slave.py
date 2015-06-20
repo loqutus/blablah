@@ -14,6 +14,7 @@ RESULT_DIR = 'results'
 PORT = 8888
 IP = '127.0.0.1'
 LOG_DIR = 'logs'
+TIMEOUT = 10
 
 class upload_file(tornado.web.RequestHandler):
     def post(self, filename):
@@ -64,6 +65,13 @@ if __name__ == '__main__':
     logging.basicConfig(filename = LOG_DIR + '/' + 'slave' + str(PORT) + '.log', format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG)
     log = logging.getLogger(__name__)
     debug('starting slave ' + IP + ':' + str(PORT))
+    debug('IP: ' + IP)
+    debug('PORT: ' + str(PORT))
+    debug('FILE_DIR: ' + FILE_DIR)
+    debug('TASK_DIR: ' + TASK_DIR)
+    debug('RESULT_DIR: ' + RESULT_DIR)
+    debug('LOG_DIR: ' + LOG_DIR)
+    debug('TIMEOUT: ' + str(TIMEOUT))
     tornado_app = tornado.web.Application([(r'/upload_file/(.*)', upload_file),(r'/upload_task/(.*)', upload_task),(r'/run_task/(.*)', run_task),(r'/stop/', stop)])
     tornado_app.listen(PORT, IP)
     tornado.ioloop.IOLoop.instance().start()

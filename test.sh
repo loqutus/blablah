@@ -18,10 +18,14 @@ nohup ./slave.py 8886 &
 nohup ./slave.py 8887 &
 sleep 1
 ./client.py upload_file file.txt
+./client.py upload_task task.py
 ./client.py stop_slave 127.0.0.1:8885
 ./client.py stop_slave 127.0.0.1:8886
 ./client.py stop_slave 127.0.0.1:8887
 ./client.py stop_controller 127.0.0.1:8888
 ls -lah files/
+ls -lah files.*/
 ls -lah splits/
+ls -lah tasks/
+ls -lah tasks.*/
 rm nohup.out

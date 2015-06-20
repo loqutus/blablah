@@ -6,6 +6,7 @@ import tornado.web
 import subprocess
 import itertools
 import logging
+import ipdb
 from logging import debug
 
 IP = '127.0.0.1'
@@ -74,26 +75,53 @@ class upload_file(tornado.web.RequestHandler):
             with open(SPLIT_DIR + '/' + split_upload, 'rb') as f:
                 requests.post(url_upload, f.read(), timeout = TIMEOUT) 
                 debug('uploaded: ' + url_upload)
+        self.set_status(200, 'OK')
         debug('file uploading finished!')
 
 class stop(tornado.web.RequestHandler):
     def get(self):
         debug('---stopping controller---')
+        self.set_status(200, 'OK')
         tornado.ioloop.IOLoop.instance().stop()
 
-def upload_task(taskname, url_upload):
-    debug('uploading task: ' + taskname + ' to ' + url_upload)
-    with open(taskname, 'rb') as f:
-        requests.post(url_upload, f.read(), timeout = TIMEOUT)
-    debug('task uploaded !')
+class upload_task(tornado.web.RequestHandler):
+    def post(self, filename):
+        debug('uploading task')
+        task_path = TASK_DIR + '/' + filename
+        with open(task_path, 'wb') as f:
+            f.write(self.request.body)
+            debug('task ' + filename + ' saved')
+        with open(HOSTS, 'r') as h:
+            host_lines = h.readlines()
+            for line in host_lines:
+                host = line.split(' ')[0]
+                port = line.split(' ')[1][:-1]
+                url_upload = 'http://' + host + ':' + port + '/upload_task/' + filename 
+                debug(url_upload)
+                debug('uploading task ' + filename + ' to ' + url_upload)
+                with open(task_path, 'rb') as f:
+                    requests.post(url_upload, f.read(), timeout = TIMEOUT)
+                debug('task ' + filename + ' uploaded')
+        self.set_status(200, 'OK')
+        debug('task uploading finished')            
 
 def run_task(url_run):
     debug('running task: ' + url_run)
     requests.get(url_run, timeout = TIMEOUT)
     debug('task runned!')
+    self.set_status(200, 'OK')
     
 if __name__ == '__main__':
     debug('---starting controller---')
     tornado_app = tornado.web.Application([(r'/upload_file/(.*)', upload_file),(r'/upload_task/(.*)', upload_task),(r'/run_task/(.*)', run_task),(r'/stop/', stop)])
     tornado_app.listen(PORT, IP)
+    debug('IP: ' + IP)
+    debug('PORT: ' + PORT)
+    debug('TIMEOUT: ' + str(TIMEOUT))
+    debug('HOSTS: ' + HOSTS)
+    debug('FILE_DIR: ' + FILE_DIR)
+    debug('SPLIT_DIR: ' + SPLIT_DIR)
+    debug('TASK_DIR: ' + TASK_DIR)
+    debug('RESULT_DIR: ' + RESULT_DIR)
+    debug('LOG_DIR: ' + LOG_DIR)
     tornado.ioloop.IOLoop.instance().start()
