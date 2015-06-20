@@ -23,6 +23,7 @@ log = logging.getLogger(__name__)
 
 def split(filename):
     debug('slicing start')
+    splits_list = []
     count_lines = 0
     count_hosts = 0
     split_path = SPLIT_DIR + '/' + filename
@@ -41,7 +42,9 @@ def split(filename):
     with open(file_path, 'rb') as g:
         while i < count_hosts: 
             debug('splitting: ' + str(i))
-            with open(split_path + '.' + str(i), 'wb') as f:
+            splits_list.append(filename + '.' + str(i))
+            split_name = split_path + '.' + str(i)
+            with open(split_name, 'wb') as f:
                 j = 0
                 debug('open: ' + split_path + '.' + str(i))
                 while j < lines_per_split:
@@ -49,8 +52,7 @@ def split(filename):
                     j += 1    
                 debug('close: ' + split_path + '.' + str(i))
             i += 1
-    return 0
-
+    return splits_list
     
 class upload_file(tornado.web.RequestHandler):
     def post(self, filename):
@@ -59,17 +61,19 @@ class upload_file(tornado.web.RequestHandler):
         with open(path, 'wb') as f:
             f.write(self.request.body)
         debug('saved: ' + filename)        
-        split(filename)        
-#        f = open(HOSTS, 'r')
-        #for i in f:
-        #       host = i.split(' ')[0]
-#    port = i.split(' ')[1]
-#            url_upload = 'http://' + host + ':' + port + '/upload_file/' + filename
-#            debug('uploading file: ' + filename + ' to ' url_upload)
-#            with open(path, 'rb') as f:
-#                requests.post(url_upload, f.read(), timeout = TIMEOUT)
-#        
-#            debug(url_upload + 'uploaded !')
+        split_files = split(filename)        
+        with open(HOSTS, 'r') as f:
+            split_hosts = f.readlines()
+        for i in range(0,len(split_hosts)):
+            line = split_hosts[i]
+            split_upload = split_files[i]
+            host = line.split(' ')[0]
+            port = line.split(' ')[1][:-1]
+            url_upload = 'http://' + host + ':' + port + '/upload_file/' +split_upload 
+            debug('uploading file: ' + split_upload + ' to ' + url_upload)
+            with open(SPLIT_DIR + '/' + split_upload, 'rb') as f:
+                requests.post(url_upload, f.read(), timeout = TIMEOUT) 
+                debug('uploaded: ' + url_upload)
         debug('file uploading finished!')
 
 class stop(tornado.web.RequestHandler):
@@ -79,7 +83,6 @@ class stop(tornado.web.RequestHandler):
 
 def upload_task(taskname, url_upload):
     debug('uploading task: ' + taskname + ' to ' + url_upload)
-#path = 
     with open(taskname, 'rb') as f:
         requests.post(url_upload, f.read(), timeout = TIMEOUT)
     debug('task uploaded !')
