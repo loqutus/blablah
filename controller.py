@@ -105,11 +105,20 @@ class upload_task(tornado.web.RequestHandler):
         self.set_status(200, 'OK')
         debug('task uploading finished')            
 
-def run_task(url_run):
-    debug('running task: ' + url_run)
-    requests.get(url_run, timeout = TIMEOUT)
-    debug('task runned!')
-    self.set_status(200, 'OK')
+class run_task(tornado.web.RequestHandler):
+    def get(self, taskname):
+        debug('running task: ' + taskname)
+        with open(HOSTS, 'r') as h:
+            host_lines = h.readlines()
+            for line in host_lines:
+                host = line.split(' ')[0]
+                port = line.split(' ')[1][:-1]
+                url_run = 'http://' + host + ':' + port + '/run_task/' + taskname
+                debug('running task: ' + url_run)
+                requests.get(url_run, timeout = TIMEOUT)
+                debug('task ' + taskname + ' runned on  ' + url_run)
+        debug('task runned on all slaves!')
+        self.set_status(200, 'OK')
     
 if __name__ == '__main__':
     debug('---starting controller---')

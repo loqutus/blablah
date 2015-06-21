@@ -18,7 +18,7 @@ TIMEOUT = 10
 
 class upload_file(tornado.web.RequestHandler):
     def post(self, filename):
-        debug ('upload_file: ' + filename)
+        debug('upload_file: ' + filename)
         FILENAME = FILE_DIR + '/' + filename
         with open(FILENAME, 'wb') as f:
             f.write(self.request.body)
@@ -41,7 +41,7 @@ class run_task(tornado.web.RequestHandler):
         f = uri.split('=')[1]
         r = uri.split('=')[2]
         sb = subprocess.call([TASK_DIR + '/' + t, FILE_DIR + '/' + f, RESULT_DIR + '/' + r])
-        debug('task: ' + taskname + ' ended')
+        debug('task: ' + uri + ' ended')
 
 class stop(tornado.web.RequestHandler):
     def get(self):

@@ -43,7 +43,8 @@ if __name__ == '__main__':
     elif ACTION == 'run_task':
         TASKNAME = sys.argv[2]
         FILENAME = sys.argv[3]
-        URL_RUN = URL + '/run_task/' + TASKNAME + '=' + FILENAME
+        RESULTNAME = sys.argv[4]
+        URL_RUN = URL + '/run_task/' + TASKNAME + '=' + FILENAME + '=' + RESULTNAME
         run_task(URL_RUN)
     elif ACTION == 'stop_controller':
         CONTROLLER = sys.argv[2]
