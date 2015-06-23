@@ -21,4 +21,5 @@ if __name__ == "__main__":
     FILENAME = sys.argv[1]
     OUTNAME = sys.argv[2]
     freq(FILENAME, OUTNAME)
+    print 'fuck'
     exit (0)

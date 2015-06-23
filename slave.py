@@ -16,6 +16,7 @@ IP = '127.0.0.1'
 LOG_DIR = 'logs'
 TIMEOUT = 10
 
+
 class upload_file(tornado.web.RequestHandler):
     def post(self, filename):
         debug('upload_file: ' + filename)
@@ -24,6 +25,7 @@ class upload_file(tornado.web.RequestHandler):
             f.write(self.request.body)
         self.set_status(200, 'OK')
         debug('file: ' + filename + ' uploaded')
+
 
 class upload_task(tornado.web.RequestHandler):
     def post(self, taskname):
@@ -34,19 +36,27 @@ class upload_task(tornado.web.RequestHandler):
         os.chmod(TASKNAME, 0755)
         debug('task ' + taskname + ' uploaded')
 
+
 class run_task(tornado.web.RequestHandler):
     def get(self, uri):
         debug('run_task: ' + uri)
         t = uri.split('=')[0]
         f = uri.split('=')[1]
         r = uri.split('=')[2]
-        sb = subprocess.call([TASK_DIR + '/' + t, FILE_DIR + '/' + f, RESULT_DIR + '/' + r])
+        debug(TASK_DIR + '/' + t + ' ' + FILE_DIR + '/' + f + ' ' + RESULT_DIR + '/' + r)
+        try:
+            debug(subprocess.check_output(
+                ['./' + TASK_DIR + '/' + t, './' + FILE_DIR + '/' + f, './' + RESULT_DIR + '/' + r]))
+        except subprocess.CalledProcessError, e:
+            print "Ping stdout output:\n", e.output
         debug('task: ' + uri + ' ended')
+
 
 class stop(tornado.web.RequestHandler):
     def get(self):
         debug('---stopping---')
         tornado.ioloop.IOLoop.instance().stop()
+
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
@@ -62,7 +72,9 @@ if __name__ == '__main__':
         RESULT_DIR = RESULT_DIR + '.' + PORT
     else:
         pass
-    logging.basicConfig(filename = LOG_DIR + '/' + 'slave' + str(PORT) + '.log', format = u'%(filename)s[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s', level = logging.DEBUG)
+    logging.basicConfig(filename=LOG_DIR + '/' + 'slave' + str(PORT) + '.log',
+                        format=u'[LINE:%(lineno)d]# %(levelname)-8s [%(asctime)s]  %(message)s',
+                        level=logging.DEBUG)
     log = logging.getLogger(__name__)
     debug('starting slave ' + IP + ':' + str(PORT))
     debug('IP: ' + IP)
@@ -72,6 +84,8 @@ if __name__ == '__main__':
     debug('RESULT_DIR: ' + RESULT_DIR)
     debug('LOG_DIR: ' + LOG_DIR)
     debug('TIMEOUT: ' + str(TIMEOUT))
-    tornado_app = tornado.web.Application([(r'/upload_file/(.*)', upload_file),(r'/upload_task/(.*)', upload_task),(r'/run_task/(.*)', run_task),(r'/stop/', stop)])
+    tornado_app = tornado.web.Application(
+        [(r'/upload_file/(.*)', upload_file), (r'/upload_task/(.*)', upload_task), (r'/run_task/(.*)', run_task),
+         (r'/stop/', stop)])
     tornado_app.listen(PORT, IP)
     tornado.ioloop.IOLoop.instance().start()

@@ -1,4 +1,4 @@
-#!/bin/bash
+    #!/bin/bash
 set -x
 rm -Rf files/*
 rm -Rf splits/*
@@ -18,9 +18,10 @@ nohup ./slave.py 8885 &
 nohup ./slave.py 8886 &
 nohup ./slave.py 8887 &
 sleep 1
-./client.py upload_file file.txt
-./client.py upload_task task.py
-./client.py run_task task.py file.txt result.txt
+./client.py upload_file 127.0.0.1:8888 file.txt
+./client.py upload_task 127.0.0.1:8888 task.py
+#./client.py register_task 127.0.0.1:8888 task.py file.txt
+./client.py run_task 127.0.0.1:8888 task.py file.txt result.txt
 ./client.py stop_slave 127.0.0.1:8885
 ./client.py stop_slave 127.0.0.1:8886
 ./client.py stop_slave 127.0.0.1:8887
