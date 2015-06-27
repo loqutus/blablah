@@ -1,19 +1,17 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 
 import sys
 
 def freq(FILENAME, OUTNAME):
     dict = {}
     with open(FILENAME) as f:
-            st = f.read()
-            for i in st:
-                    if i.isalpha():
-                            i = i.lower()
-                            if i in dict:
-                                    dict[i] = dict[i] + 1
-                            else:
-                                    dict[i] = 0
+        for i in f.read():
+            if i.isalpha():
+                i = i.lower()
+                if i in dict:
+                    dict[i] = dict[i] + 1
+                else:
+                    dict[i] = 0
     with open(OUTNAME, 'w+') as f:
         for i in sorted(sorted(dict), key=dict.get, reverse=True):
             f.write(str(i) + ' ' + str(dict[i]) + '\n')

@@ -5,8 +5,7 @@ import sys
 def freq(FILENAME, OUTNAME):
     dict = {}
     with open(FILENAME) as f:
-        st = f.read()
-        for i in st:
+        for i in f.read():
             if i.isalpha():
                 i = i.lower()
                 if i in dict:
@@ -21,5 +20,4 @@ if __name__ == "__main__":
     FILENAME = sys.argv[1]
     OUTNAME = sys.argv[2]
     freq(FILENAME, OUTNAME)
-    print 'fuck'
     exit (0)

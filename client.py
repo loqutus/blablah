@@ -41,6 +41,14 @@ def register_task(controller, task, filename):
     requests.get(url, timeout=TIMEOUT)
     debug('task registered!')
 
+def get_result(controller, resultname):
+    print 'getting result ' + resultname + ' from  ' + controller
+    url_get_result = 'http://' + controller + '/get_result/' + resultname
+    with open(resultname, 'wb') as f:
+        response = requests.get(url_get_result, stream=True)
+        for block in response.iter_content(1024):
+            f.write(block)
+    print 'results written to ' + resultname
 
 if __name__ == '__main__':
     ACTION = sys.argv[1]
@@ -65,7 +73,10 @@ if __name__ == '__main__':
         URL_STOP = 'http://' + SLAVE + '/stop/'
         stop(URL_STOP)
     elif ACTION == 'register_task':
-        CONTOLLER = sys.argv[2]
+        CONTROLLER = sys.argv[2]
         TASK = sys.argv[3]
         FILENAME = sys.argv[4]
         register_task(CONTROLLER, TASK, FILENAME)
+    elif ACTION == 'get_result':
+        RESULTNAME = sys.argv[3]
+        get_result(CONTROLLER, RESULTNAME)

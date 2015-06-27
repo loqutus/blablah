@@ -127,9 +127,9 @@ class run_task(tornado.web.RequestHandler):
             f = taskname.split('=')[1]
             res = taskname.split('=')[2]
             url_run = 'http://' + host + ':' + port + '/run_task/' + task\
-                      + '=' + f + '.' + str(i) + '=' + res
+                      + '=' + f + '.' + str(i) + '=' + res + '.' + str(i)
             debug('running task: ' + url_run)
-            requests.get(url_run, timeout=TIMEOUT)
+            r = requests.get(url_run, timeout=TIMEOUT)
             debug('task ' + taskname + ' runned on  ' + url_run)
         debug('task runned on all slaves!')
         self.set_status(200, 'OK')
@@ -150,12 +150,34 @@ class register_task(tornado.web.RequestHandler):
             self.set_status(500, 'OK')
 
 
+class get_result(tornado.web.RequestHandler):
+    def get(self, result_name):
+        debug('getting task result: ' + result_name)
+        with open(HOSTS, 'r') as h:
+            host_lines = h.readlines()
+        with open(RESULT_DIR + '/' + result_name, 'w') as of:
+            for fn in (host_lines):
+                host = fn.split(' ')[0]
+                port = fn.split(' ')[1][:-1]
+                url_get = 'http://' + host + ':' + str(port)\
+                          +'/get_result/' + result_name + '.' + str(host_lines.index(fn))
+                debug('task ' + url_get + ' result written')
+                response = requests.get(url_get, stream=True)
+                for block in response.iter_content(1024):
+                    of.write(block)
+        debug('result ' + result_name + ' written')
+        with open(RESULT_DIR + '/' + result_name, 'rb') as f:
+            self.write(f.read())
+        debug('result sended')
+
+
 if __name__ == '__main__':
     debug('---starting controller---')
     tornado_app = tornado.web.Application(
         [(r'/upload_file/(.*)', upload_file), (r'/upload_task/(.*)', upload_task),
          (r'/run_task/(.*)', run_task),
-         (r'/stop/', stop), (r'/register_task/(.*)', register_task)])
+         (r'/stop/', stop), (r'/register_task/(.*)', register_task),
+         (r'/get_result/(.*)', get_result)])
     tornado_app.listen(PORT, IP)
     debug('IP: ' + IP)
     debug('PORT: ' + PORT)
