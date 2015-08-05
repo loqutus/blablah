@@ -34,6 +34,6 @@ ls -lah splits/
 ls -lah tasks/
 ls -lah tasks.*/
 ls -lah results.*/
-ls -lah results/*
+ls -lah results/
 rm nohup.out
 for i in $(ps aux | grep slave | grep -v grep | grep -v vim | grep -v tail | awk '{ print $2 }'); do kill -9 $i ; done

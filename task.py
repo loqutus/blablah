@@ -2,22 +2,26 @@
 
 import sys
 
-def freq(FILENAME, OUTNAME):
-    dict = {}
-    with open(FILENAME) as f:
-        for i in f.read():
-            if i.isalpha():
-                i = i.lower()
-                if i in dict:
-                    dict[i] = dict[i] + 1
-                else:
-                    dict[i] = 0
-    with open(OUTNAME, 'w+') as f:
-        for i in sorted(sorted(dict), key=dict.get, reverse=True):
-            f.write(str(i) + ' ' + str(dict[i]) + '\n')
+
+def freq(filename, outname):
+    res = {}
+    with open(filename) as f:
+        for j in f:
+            for i in j:
+                if i.isalpha():
+                    i = i.lower()
+                    if i in res:
+                        res[i] += 1
+                    else:
+                        res[i] = 1
+
+    with open(outname, 'w+') as f:
+        for i in sorted(sorted(res), key=res.get, reverse=True):
+            f.write(str(i) + ' ' + str(res[i]) + '\n')
+
 
 if __name__ == "__main__":
     FILENAME = sys.argv[1]
     OUTNAME = sys.argv[2]
     freq(FILENAME, OUTNAME)
-    exit (0)
+    exit(0)

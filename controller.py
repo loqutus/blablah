@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 
-import sys
 import requests
 import tornado.web
-import subprocess
-import itertools
 import logging
 import ipdb
 from logging import debug
@@ -32,7 +29,7 @@ def split(filename):
     count_lines = 0
     count_hosts = 0
     split_path = SPLIT_DIR + '/' + filename
-    file_path = FILE_DIR + '/' + filename
+    file_path = FILE_DIR + '/' + 'tempfile'
     with open(HOSTS, 'r') as h:
         for i in h:
             count_hosts += 1
@@ -55,18 +52,16 @@ def split(filename):
                 while j < lines_per_split:
                     f.write(g.next())
                     j += 1
-                debug('close: ' + split_path + '.' + str(i))
+            debug('close: ' + split_path + '.' + str(i))
             SPLIT_FILES.append(filename + '.' + str(i))
             i += 1
 
-
+@tornado.web.stream_request_body
 class upload_file(tornado.web.RequestHandler):
+    def data_received(self, data):
+        with open(FILE_DIR + '/' + 'tempfile', 'ab') as f:
+            f.write(data)
     def post(self, filename):
-        debug('saving: ' + filename)
-        path = FILE_DIR + '/' + filename
-        with open(path, 'wb') as f:
-            f.write(self.request.body)
-        debug('saved: ' + filename)
         split(filename)
         with open(HOSTS, 'r') as f:
             split_hosts = f.readlines()
@@ -78,8 +73,8 @@ class upload_file(tornado.web.RequestHandler):
             url_upload = 'http://' + host + ':' + port + '/upload_file/' + fn
             debug('uploading file: ' + fn + ' to ' + url_upload)
             with open(SPLIT_DIR + '/' + fn, 'rb') as f:
-                requests.post(url_upload, f.read(), timeout=TIMEOUT)
-                debug('uploaded: ' + url_upload)
+                requests.post(url_upload, data=f, timeout=TIMEOUT)
+            debug('uploaded: ' + url_upload)
         self.set_status(200, 'OK')
         debug('file uploading finished!')
 
@@ -160,7 +155,7 @@ class get_result(tornado.web.RequestHandler):
                 host = fn.split(' ')[0]
                 port = fn.split(' ')[1][:-1]
                 url_get = 'http://' + host + ':' + str(port)\
-                          +'/get_result/' + result_name + '.' + str(host_lines.index(fn))
+                          + '/get_result/' + result_name + '.' + str(host_lines.index(fn))
                 debug('task ' + url_get + ' result written')
                 response = requests.get(url_get, stream=True)
                 for block in response.iter_content(1024):

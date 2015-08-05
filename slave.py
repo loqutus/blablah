@@ -7,6 +7,7 @@ import time
 import sys
 import logging
 from logging import debug
+import ipdb
 
 FILE_DIR = 'files'
 TASK_DIR = 'tasks'
@@ -41,6 +42,7 @@ class upload_task(tornado.web.RequestHandler):
 class run_task(tornado.web.RequestHandler):
     def get(self, uri):
         debug('run_task: ' + uri)
+        #ipdb.set_trace()
         t = uri.split('=')[0]
         f = uri.split('=')[1]
         r = uri.split('=')[2]

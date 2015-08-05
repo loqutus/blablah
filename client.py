@@ -10,7 +10,7 @@ def upload_file(controller, filename):
     print 'uploading file: ' + filename + ' to ' + controller
     url_upload = 'http://' + controller + '/upload_file/' + filename
     with open(filename, 'rb') as f:
-        requests.post(url_upload, f.read(), timeout=TIMEOUT)
+        requests.post(url_upload, data=f, timeout=TIMEOUT)
     print 'file uploaded !'
 
 
